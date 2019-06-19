@@ -1,0 +1,16 @@
+P' = P
+P = inicio
+V = varinicio
+LV = id,varfim
+D = id
+TIPO = int,real,literal
+A = leia,escreva,id,se,fim
+ES = leia,escreva
+ARG = literal,num,id
+CMD = id
+LD = id
+OPRD = id
+COND = se
+CABECALHO = se
+EXPR_R = id
+CORPO = leia,escreva,id,se,fimse

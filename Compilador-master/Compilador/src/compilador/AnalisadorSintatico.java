@@ -1,0 +1,139 @@
+package compilador;
+
+import java.util.Stack;
+import java.util.concurrent.LinkedBlockingQueue;
+
+public class AnalisadorSintatico extends Thread{
+	private static final int ERR = -99, ACC = 99; 
+	LinkedBlockingQueue<Token> fila;
+	private static int $ = 37;
+	private static final int ESTADOS[][] = {
+
+			
+						
+//58
+// 0	1	 2	  3    4    5	 6	  7	   8    9   10   11   12   13   14   15   16   17   18   19   20   21   22   23   24   25   26   27   28   29   30   31   32   33   34   35   37				
+//id  num  str  opr  opm  rcb    (    )    ;  ini  fim vini vfim   se  ent  fse leia escr  int real  lit    P    V   LV    D  TIP    A   ES  ARG  CMD   LD OPRD COND  CAB CORP EXPR    $  
+
+			
+			
+{ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR,   2, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR,   1, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR}, // 0
+{ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ACC}, // 1
+{ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR,   4, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR,   3, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR}, // 2
+{ 15, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR,  12, ERR, ERR,  43, ERR, ERR,  13,  14, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR,   9,  10, ERR,  11, ERR, ERR,  18,  44, ERR, ERR, ERR}, // 3
+{ 37, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR,   8, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR,   5,   6, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR}, // 4
+{ -3, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR,  -3, ERR, ERR,  -3, ERR, ERR,  -3,  -3, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR}, // 5 r3
+{ 37, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR,   8, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR,   7,   6, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR},
+{ -4, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR,  -4, ERR, ERR,  -4, ERR, ERR,  -4,  -4, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR},
+{ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR,  28, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR},
+{ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR,  -2},
+{ 15, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR,  12, ERR, ERR,  43, ERR, ERR,  13,  14, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR,  16,  10, ERR,  11, ERR, ERR,  18,  44, ERR, ERR, ERR},
+{ 15, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR,  12, ERR, ERR,  43, ERR, ERR,  13,  14, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR,  17,  10, ERR,  11, ERR, ERR,  18,  44, ERR, ERR, ERR},
+{ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, -30},
+{ 19, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR},
+{ 22,  21,  20, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR,  23, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR},
+{ERR, ERR, ERR, ERR, ERR,  24, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR},
+{ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, -10},
+{ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, -16},
+{ 15, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR,  12, ERR, ERR,  43, ERR, ERR,  13,  14, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR,  25,  10, ERR,  11, ERR, ERR,  18,  44, ERR, ERR, ERR},
+{ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR,  26, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR},
+{ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, -13, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR},
+{ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, -14, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR},
+{ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, -15, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR},
+{ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR,  29, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR},
+{ 30,  31, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR,  33,  32, ERR, ERR, ERR, ERR, ERR},
+{ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, -22},
+{-11, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, -11, ERR, ERR, -11, ERR, -11, -11, -11, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR},
+{ -4, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR,  -4, ERR, ERR,  -4, ERR, ERR,  -4,  -4, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR}, //linha morta
+{ -5, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR,  -5, ERR, ERR,  -5, ERR, ERR,  -5,  -5, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR},
+{-12, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, -12, ERR, ERR, -12, ERR, -12, -12, -12, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR},
+{-20, ERR, ERR, -20, -20, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, -20, ERR, -20, -20, -20, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR},
+{-21, ERR, ERR, -21, -21, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, -21, ERR, -21, -21, -21, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR},
+{ERR, ERR, ERR, ERR,  34, ERR, ERR, ERR, ERR, ERR, -19, ERR, ERR, -19, ERR, -19, -19, -19, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR},
+{ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR,  35, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR},
+{ 30,  31, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR,  36, ERR, ERR, ERR, ERR, ERR},
+{-17, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, -19, ERR, ERR, -19, ERR, -19, -19, -19, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR},
+{ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, -18, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR},
+{ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR,  38,  39,  40, ERR, ERR, ERR, ERR,  41, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR},
+{ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR,  -7, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR},
+{ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR,  -8, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR},
+{ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR,  -9, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR},
+{ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR,  42, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR},
+{ -6, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR,  -6, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR},
+{ERR, ERR, ERR, ERR, ERR, ERR,  45, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR},
+{ 15, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR,  43, ERR,  49,  13,  14, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR,  46, ERR,  47, ERR,  48,  48,  44, ERR, ERR, ERR},
+{ 30,  31, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR,  50, ERR, ERR, ERR,  51, ERR},
+{ 15, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR,  43, ERR,  49,  13,  14, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR,  46, ERR,  47, ERR, ERR,  48,  44,  52, ERR, ERR},
+{ 15, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR,  43, ERR,  49,  13,  14, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR,  46, ERR,  47, ERR, ERR,  48,  44,  53, ERR, ERR},
+{ 15, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR,  43, ERR,  49,  13,  14, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR,  46, ERR,  47, ERR, ERR,  48,  44,  54, ERR, ERR},
+{ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR,  55, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR},
+{ERR, ERR, ERR,  56, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR},
+{ERR, ERR, ERR, ERR, ERR, ERR, ERR,  57, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR},
+{-26, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, -26, ERR, -26, -26, -26, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR},
+{-27, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, -27, ERR, -27, -27, -27, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR},
+{-28, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, -28, ERR, -28, -28, -28, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR},
+{-29, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, -29, ERR, -29, -29, -29, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR},
+{ 30,  31, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR,  58, ERR, ERR, ERR, ERR, ERR},
+{ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR,  59, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR},
+{ERR, ERR, ERR, ERR, ERR, ERR, ERR, -25, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR},
+{-24, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, -24, ERR, -24, -24, -24, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR},
+{ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR},
+{ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR},
+{ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR},
+{ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR},
+{ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR},
+//id  num  str  opr  opm  rcb    (    )    ;  ini  fim vini vfim   se  ent  fse leia escr  int real  lit    P    V   LV    D  TIP    A   ES  ARG  CMD   LD OPRD COND  CAB CORP EXPR    $
+//0	    1	 2	  3    4    5	 6	  7	   8    9   10   11   12   13   14   15   16   17   18   19   20   21   22   23   24   25   26   27   28   29   30   31   32   33   34   35   37
+	};
+	//						   						0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15  16  17  18  19  20  21  22  23  24  25  26  27  28  29  30 
+	private static final int[] PRODUCAO_TAMANHO = { 0,  0,  3,  2,  3,  2,  3,  1,  1,  1,  2,  3,  3,  1,  1,  1,  2,  4,  3,  1,  1,  1,  2,  2,  5,  3,  2,  2,  2,  2,  1};
+	private static final int[] PRODUCAO_CODIGO =  {-1, -1, 21, 22, 23, 23, 24, 25, 25, 25, 26, 27, 27, 28, 28, 28, 26, 29, 30, 30, 31, 31, 26, 32, 33, 35, 34, 34, 34, 34, 26};
+	
+	
+	public AnalisadorSintatico(LinkedBlockingQueue<Token> fila) {
+		this.fila = fila;
+	}
+
+
+	@Override
+	public void run() {
+		Stack<Integer> pilha = new Stack<>();
+		Token atual = nextToken();
+		int estado;
+		pilha.push(0);
+		while(atual.getCodigo() != $){
+			estado = pilha.peek();
+			if(estado >= 0) estado = ESTADOS[estado][atual.getCodigo()];
+			if(estado >= 0){
+				if(estado < 99){
+					pilha.push(atual.getCodigo());
+					pilha.push(estado);
+					atual = nextToken();
+				}else{
+					System.out.println("Aceito");
+					break;
+				}
+			}else if(estado > -99){
+				int prod = estado * -1;
+				for(int i = 0; i < PRODUCAO_TAMANHO[prod]*2; i++) pilha.pop();
+				int codigoNaoTerminal = PRODUCAO_CODIGO[prod];
+				int proximoEstado = ESTADOS[pilha.peek()][codigoNaoTerminal];
+				pilha.push(codigoNaoTerminal);
+				pilha.push(proximoEstado);
+			}else{
+				System.out.println("Erro na linha " + atual.getLinha() + " e coluna " + atual.getColuna());
+				break;
+			}
+		}
+	}
+	
+	public Token nextToken(){
+		try {
+			return fila.take();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+}
